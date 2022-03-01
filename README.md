@@ -1,0 +1,2 @@
+# Database-Management-System
+The project we have decided to work on is a School Log Management System. The School Log Management System will be a basic web application that will allow administrators to monitor students, faculty, and all employees. The system's goal will be to track all members in and out using ID and barcodes. Admins will be allowed to add, delete, and edit employees. The system will be user-friendly and simple to operate.
