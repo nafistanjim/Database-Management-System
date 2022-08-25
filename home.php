@@ -1,4 +1,4 @@
-<?php include 'admin/db_connect.php' ?>
+<?php include 'db_connect.php' ?>
 <style>
    span.float-right.summary_icon {
     font-size: 3rem;
@@ -34,16 +34,6 @@
 		max-height: calc(100%)!important;
 		max-width: calc(100%)!important;
 	}
-    .bg-gradient-primary{
-        background: rgb(119,172,233);
-        background: linear-gradient(149deg, rgba(119,172,233,1) 5%, rgba(83,163,255,1) 10%, rgba(46,51,227,1) 41%, rgba(40,51,218,1) 61%, rgba(75,158,255,1) 93%, rgba(124,172,227,1) 98%);
-    }
-    .btn-primary-gradient{
-        background: linear-gradient(to right, #1e85ff 0%, #00a5fa 80%, #00e2fa 100%);
-    }
-    .btn-danger-gradient{
-        background: linear-gradient(to right, #f25858 7%, #ff7840 50%, #ff5140 105%);
-    }
 </style>
 
 <div class="containe-fluid">
@@ -51,75 +41,68 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="col-md-12">
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <div class="card bg-gradient-primary text-white mx-2 mb-2">
-                                    <div class="card-body text-center">
-                                        <h4><b>Student</b></h4>
-                                    </div>
-                                    <div class="card-footer p-0 pt-1 border-top border-secondary">
-                                        <div class="d-flex mx-o mt-0 mb-0">
-                                        <button type="button" class="btn btn-block btn-primary-gradient text-white font-weight-bold mt-0 mx-0 btn-log" data-type='students' data-log="1">Log</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="card bg-gradient-primary text-white mx-2 mb-2">
-                                    <div class="card-body text-center">
-                                        <h4><b>Faculty</b></h4>
-                                    </div>
-                                    <div class="card-footer p-0 pt-1 border-top border-secondary">
-                                        <div class="d-flex mx-o mt-0 mb-0">
-                                        <button type="button" class="btn btn-block btn-primary-gradient text-white font-weight-bold mt-0 mx-0 btn-log" data-type='faculty' data-log="1">Log</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="card bg-gradient-primary text-white mx-2 mb-2">
-                                    <div class="card-body text-center">
-                                        <h4><b>Employee</b></h4>
-                                    </div>
-                                    <div class="card-footer p-0 pt-1 border-top border-secondary">
-                                        <div class="d-flex mx-o mt-0 mb-0">
-                                        <button type="button" class="btn btn-block btn-primary-gradient text-white font-weight-bold mt-0 mx-0 btn-log" data-type='employees' data-log="1">Log</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="card bg-gradient-primary text-white mx-2 mb-2">
-                                    <div class="card-body text-center">
-                                        <h4><b>Visitor</b></h4>
-                                    </div>
-                                    <div class="card-footer p-0 pt-1 border-top border-secondary">
-                                        <div class="d-flex mx-o mt-0 mb-0">
-                                        <button type="button" class="btn btn-block btn-primary-gradient text-white font-weight-bold col-sm-6 mt-0 mx-0 visitor-in" data-type='visitor' data-log="1">In</button>
-                                        <button type="button" class="btn btn-block btn-danger-gradient text-white font-weight-bold col-sm-6 mt-0 mx-0 btn-log-visitor" data-type='visitor' data-log="2">Out</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>                    
+                    <?php echo "Welcome back ". $_SESSION['login_name']."!"  ?>
+                    <hr>
                 </div>
             </div>      			
         </div>
     </div>
 </div>
 <script>
+	$('#manage-records').submit(function(e){
+        e.preventDefault()
+        start_load()
+        $.ajax({
+            url:'ajax.php?action=save_track',
+            data: new FormData($(this)[0]),
+            cache: false,
+            contentType: false,
+            processData: false,
+            method: 'POST',
+            type: 'POST',
+            success:function(resp){
+                resp=JSON.parse(resp)
+                if(resp.status==1){
+                    alert_toast("Data successfully saved",'success')
+                    setTimeout(function(){
+                        location.reload()
+                    },800)
 
-    $('.btn-log').click(function(){
-        uni_modal("<large><b>Scan your Barcode or Enter your ID Code</b></large>",'manage_log.php','',{type:$(this).attr('data-type'),log:$(this).attr('data-log')})
+                }
+                
+            }
+        })
     })
-    $('.visitor-in').click(function(){
-        uni_modal("Please fill the fields below.",'manage_log_visitor.php','',{type:$(this).attr('data-type'),log:$(this).attr('data-log')})
+    $('#tracking_id').on('keypress',function(e){
+        if(e.which == 13){
+            get_person()
+        }
     })
-    $('.btn-log-visitor').click(function(){
-        uni_modal("<large><b>Please Enter your visitor's pass number.</b></large>",'manage_log_visitor_out.php','',{type:$(this).attr('data-type'),log:$(this).attr('data-log')})
+    $('#check').on('click',function(e){
+            get_person()
     })
-    
+    function get_person(){
+            start_load()
+        $.ajax({
+                url:'ajax.php?action=get_pdetails',
+                method:"POST",
+                data:{tracking_id : $('#tracking_id').val()},
+                success:function(resp){
+                    if(resp){
+                        resp = JSON.parse(resp)
+                        if(resp.status == 1){
+                            $('#name').html(resp.name)
+                            $('#address').html(resp.address)
+                            $('[name="person_id"]').val(resp.id)
+                            $('#details').show()
+                            end_load()
+
+                        }else if(resp.status == 2){
+                            alert_toast("Unknow tracking id.",'danger');
+                            end_load();
+                        }
+                    }
+                }
+            })
+    }
 </script>
